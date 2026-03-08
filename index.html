@@ -1,113 +1,137 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Manga Vision | めちゃコミ検索</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&family=Noto+Sans+JP:wght@400;700&display=swap" rel="stylesheet">
-    <style>
-        body { font-family: 'Inter', 'Noto Sans JP', sans-serif; background-color: #0f172a; color: #f8fafc; }
-        .manga-card { transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
-        .manga-card:hover { transform: translateY(-8px); box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.5); }
-        .glass { background: rgba(30, 41, 59, 0.7); backdrop-filter: blur(12px); border: 1px solid rgba(255,255,255,0.1); }
-        .gradient-text { background: linear-gradient(90deg, #38bdf8, #818cf8); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-        /* カスタムスクロールバー */
-        ::-webkit-scrollbar { width: 8px; }
-        ::-webkit-scrollbar-track { background: #0f172a; }
-        ::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
-    </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manga Vision | めちゃコミ検索</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&family=Noto+Sans+JP:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', 'Noto Sans JP', sans-serif; background-color: #0f172a; color: #f8fafc; }
+        .manga-card { transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+        .manga-card:hover { transform: translateY(-8px); box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.5); }
+        .glass { background: rgba(30, 41, 59, 0.7); backdrop-filter: blur(12px); border: 1px solid rgba(255,255,255,0.1); }
+        .gradient-text { background: linear-gradient(90deg, #38bdf8, #818cf8); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #0f172a; }
+        ::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
+        .line-clamp-2 { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+    </style>
 </head>
 <body class="min-h-screen pb-12">
 
-    <header class="sticky top-0 z-50 glass border-b border-white/10 px-6 py-4">
-        <div class="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
-            <h1 class="text-2xl font-bold tracking-tighter gradient-text">MANGA VISION</h1>
-            
-            <div class="relative w-full md:w-96">
-                <input type="text" id="searchInput" 
-                    class="w-full bg-slate-900/50 border border-slate-700 rounded-full py-2.5 px-6 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all"
-                    placeholder="漫画のタイトルを入力..."
-                    onkeypress="if(event.key === 'Enter') searchManga()">
-                <button onclick="searchManga()" class="absolute right-2 top-1.5 bg-blue-600 hover:bg-blue-500 text-white px-4 py-1.5 rounded-full text-sm font-semibold transition-colors">
-                    検索
-                </button>
-            </div>
-        </div>
-    </header>
+    <header class="sticky top-0 z-50 glass border-b border-white/10 px-6 py-4">
+        <div class="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
+            <h1 class="text-2xl font-bold tracking-tighter gradient-text">MANGA VISION</h1>
+            
+            <div class="relative w-full md:w-96">
+                <input type="text" id="searchInput" 
+                    class="w-full bg-slate-900/50 border border-slate-700 rounded-full py-2.5 px-6 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all text-white"
+                    placeholder="漫画のタイトルを入力..."
+                    onkeypress="if(event.key === 'Enter') searchManga()">
+                <button onclick="searchManga()" class="absolute right-2 top-1.5 bg-blue-600 hover:bg-blue-500 text-white px-4 py-1.5 rounded-full text-sm font-semibold transition-colors">
+                    検索
+                </button>
+            </div>
+        </div>
+    </header>
 
-    <main class="max-w-7xl mx-auto mt-10 px-6">
-        <div id="statusMessage" class="text-center text-slate-400 mb-8 hidden"></div>
-        
-        <div id="mangaGrid" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-8">
-            <div class="col-span-full flex flex-col items-center justify-center py-20 text-slate-500">
-                <svg class="w-16 h-16 mb-4 opacity-20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path></svg>
-                <p class="text-lg">タイトルを入力して検索を開始してください</p>
-            </div>
-        </div>
-    </main>
+    <main class="max-w-7xl mx-auto mt-10 px-6">
+        <div id="statusMessage" class="text-center text-slate-400 mb-8 hidden"></div>
+        
+        <div id="mangaGrid" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-8">
+            <div class="col-span-full flex flex-col items-center justify-center py-20 text-slate-500">
+                <svg class="w-16 h-16 mb-4 opacity-20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path></svg>
+                <p class="text-lg">タイトルを入力して検索を開始してください</p>
+            </div>
+        </div>
+    </main>
 
-    <script>
-        async function searchManga() {
-            const query = document.getElementById('searchInput').value;
-            const grid = document.getElementById('mangaGrid');
-            const status = document.getElementById('statusMessage');
+    <script>
+        async function searchManga() {
+            const query = document.getElementById('searchInput').value.trim();
+            const grid = document.getElementById('mangaGrid');
+            const status = document.getElementById('statusMessage');
 
-            if (!query) return;
+            if (!query) return;
 
-            // UIリセット
-            grid.innerHTML = '';
-            status.textContent = '検索中...';
-            status.classList.remove('hidden');
+            // UIリセット
+            grid.innerHTML = '';
+            status.textContent = '検索中...';
+            status.classList.remove('hidden');
 
-            try {
-                // CORS回避のためにAllOriginsプロキシを使用
-                const targetUrl = `https://mechacomic.jp/search?keyword=${encodeURIComponent(query)}`;
-                const proxyUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(targetUrl)}`;
-                
-                const response = await fetch(proxyUrl);
-                const data = await response.json();
-                
-                const parser = new DOMParser();
-                const doc = parser.parseFromString(data.contents, 'text/html');
-                const items = doc.querySelectorAll('.bookList_item');
+            try {
+                // めちゃコミの検索URL (現在の仕様に合わせる)
+                const targetUrl = `https://mechacomic.jp/search?keyword=${encodeURIComponent(query)}`;
+                const proxyUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(targetUrl)}`;
+                
+                const response = await fetch(proxyUrl);
+                if (!response.ok) throw new Error('Network response was not ok');
+                
+                const data = await response.json();
+                const parser = new DOMParser();
+                const doc = parser.parseFromString(data.contents, 'text/html');
 
-                if (items.length === 0) {
-                    status.textContent = '該当する作品が見つかりませんでした。';
-                    return;
-                }
+                // 現在のめちゃコミックの構造に合わせてセレクタを修正
+                const items = doc.querySelectorAll('.bookList_item, .book-list-item');
 
-                status.classList.add('hidden');
+                if (items.length === 0) {
+                    status.textContent = '該当する作品が見つかりませんでした。';
+                    return;
+                }
 
-                items.forEach(item => {
-                    const title = item.querySelector('.bookList_title')?.innerText || 'Unknown Title';
-                    const author = item.querySelector('.bookList_author')?.innerText || '著者不明';
-                    const genre = item.querySelector('.bookList_genre')?.innerText || '';
-                    const imgUrl = item.querySelector('img')?.getAttribute('src') || '';
-                    const link = 'https://mechacomic.jp' + (item.querySelector('a')?.getAttribute('href') || '#');
+                status.classList.add('hidden');
 
-                    const card = `
-                        <div class="manga-card glass rounded-2xl overflow-hidden flex flex-col cursor-pointer" onclick="window.open('${link}', '_blank')">
-                            <div class="relative aspect-[3/4] overflow-hidden">
-                                <img src="${imgUrl}" alt="${title}" class="w-full h-full object-cover" onerror="this.src='https://via.placeholder.com/300x400?text=No+Image'">
-                                <div class="absolute top-2 right-2 bg-blue-600/90 text-[10px] font-bold px-2 py-1 rounded uppercase tracking-wider">
-                                    ${genre}
-                                </div>
-                            </div>
-                            <div class="p-4 flex flex-col flex-grow">
-                                <h3 class="font-bold text-sm line-clamp-2 mb-1 group-hover:text-blue-400 transition-colors">${title}</h3>
-                                <p class="text-xs text-slate-400 mt-auto">${author}</p>
-                            </div>
-                        </div>
-                    `;
-                    grid.innerHTML += card;
-                });
+                items.forEach(item => {
+                    // タイトル
+                    const titleElement = item.querySelector('.bookList_title, .title');
+                    const title = titleElement ? titleElement.innerText.trim() : 'Unknown Title';
 
-            } catch (error) {
-                console.error(error);
-                status.textContent = 'エラーが発生しました。時間を置いて再度お試しください。';
-            }
-        }
-    </script>
+                    // 著者
+                    const authorElement = item.querySelector('.bookList_author, .author');
+                    const author = authorElement ? authorElement.innerText.trim() : '著者不明';
+
+                    // ジャンル（もしあれば）
+                    const genreElement = item.querySelector('.bookList_genre, .category');
+                    const genre = genreElement ? genreElement.innerText.trim() : 'Manga';
+
+                    // 画像（遅延読み込み対応）
+                    const img = item.querySelector('img');
+                    let imgUrl = '';
+                    if (img) {
+                        imgUrl = img.getAttribute('data-src') || img.getAttribute('data-original') || img.getAttribute('src') || '';
+                        // 相対パスを絶対パスに変換
+                        if (imgUrl.startsWith('//')) imgUrl = 'https:' + imgUrl;
+                        else if (imgUrl.startsWith('/')) imgUrl = 'https://mechacomic.jp' + imgUrl;
+                    }
+
+                    // リンク
+                    const linkElement = item.querySelector('a');
+                    let link = linkElement ? linkElement.getAttribute('href') : '#';
+                    if (link.startsWith('/')) link = 'https://mechacomic.jp' + link;
+
+                    const card = `
+                        <div class="manga-card glass rounded-2xl overflow-hidden flex flex-col cursor-pointer group" onclick="window.open('${link}', '_blank')">
+                            <div class="relative aspect-[3/4] overflow-hidden bg-slate-800">
+                                <img src="${imgUrl}" alt="${title}" class="w-full h-full object-cover" loading="lazy" onerror="this.src='https://via.placeholder.com/300x400?text=No+Image'">
+                                <div class="absolute top-2 right-2 bg-blue-600/90 text-[10px] font-bold px-2 py-1 rounded uppercase tracking-wider shadow-lg">
+                                    ${genre}
+                                </div>
+                            </div>
+                            <div class="p-4 flex flex-col flex-grow">
+                                <h3 class="font-bold text-sm line-clamp-2 mb-2 group-hover:text-blue-400 transition-colors h-10">${title}</h3>
+                                <p class="text-xs text-slate-400 mt-auto truncate">${author}</p>
+                            </div>
+                        </div>
+                    `;
+                    grid.insertAdjacentHTML('beforeend', card);
+                });
+
+            } catch (error) {
+                console.error('Fetch error:', error);
+                status.textContent = 'データの取得に失敗しました。プロキシの制限か、サイトの仕様変更の可能性があります。';
+            }
+        }
+    </script>
 </body>
 </html>
